@@ -34,13 +34,13 @@ const PageContainer = styled.div`
   }
 `;
 
-const Header = styled.header`
+export const Header = styled.header`
   background: #121113;
   padding: 24px 0;
   border-bottom: 1px solid #f1e6fd30;
 `;
 
-const HeaderContent = styled.div`
+export const HeaderContent = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;

@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { Movie, Genre } from "../../domain/entities/Movie";
 import { getPosterUrl } from "../../shared/utils/imageUtils";
 
@@ -70,22 +70,23 @@ const Subtitle = styled.p`
   transition: opacity 0.3s ease;
 `;
 
-const RatingCircle = styled.div`
-  position: absolute;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+export const RatingCircle = styled.div<{ opacity?: number; position?: string }>`
+  position: ${(props) => props.position || "absolute"};
+  top: ${(props) => (props.position === "relative" ? "autop" : "40%")};
+  left: ${(props) => (props.position === "relative" ? "auto" : "50%")};
+  transform: ${(props) =>
+    props.position === "relative" ? "none" : "translate(-50%, -50%)"};
   width: 140px;
   height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
+  opacity: ${(props) => props.opacity || 0};
 
   transition: opacity 0.3s ease;
 `;
 
-const RatingText = styled.span`
+export const RatingText = styled.span`
   position: absolute;
   color: #ffffff;
   font-size: 14px;
@@ -94,7 +95,7 @@ const RatingText = styled.span`
   text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
 `;
 
-const RatingPercentage = styled.span`
+export const RatingPercentage = styled.span`
   font-size: 24px;
 `;
 
@@ -123,27 +124,28 @@ export const MovieCard: React.FC<MovieCardProps> = ({
 
   const genreName =
     movie.genre_ids && movie.genre_ids.length > 0
-      ? genres.find((genre) => genre.id === movie.genre_ids[0])?.name ||
-        "Desconhecido"
+      ? movie.genre_ids
+          .map(
+            (id) =>
+              genres.find((genre) => genre.id === id)?.name || "Desconhecido"
+          )
+          .filter(Boolean)
+          .join(", ")
       : "Desconhecido";
 
-  // Convert vote_average (0.0 to 10.0) to percentage (0 to 100)
   const ratingPercentage = movie.vote_average * 10;
 
-  // Format rating as percentage
   const formatRatingPercentage = (rating: number): string => {
     return `${Math.round(rating * 10)}`;
   };
 
-  // Determine fill color based on rating
   const getFillColor = (percentage: number) => {
-    if (percentage <= 50) return "#ff4444"; // Red for 0–50%
-    if (percentage <= 75) return "#ffd700"; // Yellow for 51–75%
-    return "#00cc00"; // Green for 76–100%
+    if (percentage <= 50) return "#ff4444";
+    if (percentage <= 75) return "#ffd700";
+    return "#00cc00";
   };
 
-  // Calculate stroke-dasharray for SVG circle
-  const radius = 60; // Half of 120px (140px - 20px for stroke width)
+  const radius = 60;
   const circumference = 2 * Math.PI * radius;
   const strokeDasharray = `${
     (ratingPercentage / 100) * circumference

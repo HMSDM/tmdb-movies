@@ -12,7 +12,18 @@ import {
   formatCurrency,
   formatRating,
   formatVoteCount,
+  translateStatus,
+  translateLanguage,
+  formatMovieBudget,
+  calculateProfit,
 } from "../../shared/utils/formatUtils";
+import { Header, HeaderContent } from "./MovieSearchPage";
+import {
+  RatingCircle,
+  RatingPercentage,
+  RatingText,
+} from "../components/MovieCard";
+import { Movie } from "@/domain/entities/Movie";
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -21,21 +32,15 @@ const PageContainer = styled.div`
 `;
 
 const BackdropContainer = styled.div<{ backdropUrl?: string }>`
+  display: flex;
   position: relative;
-  height: 60vh;
-  background: ${(props) =>
-    props.backdropUrl
-      ? `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url(${props.backdropUrl})`
-      : "#1a1a1a"};
-  background-size: cover;
-  background-position: center;
   display: flex;
   align-items: flex-end;
 `;
 
 const BackButton = styled.button`
-  position: absolute;
-  top: 24px;
+  position: fixed;
+  bottom: 24px;
   left: 24px;
   background: rgba(0, 0, 0, 0.7);
   border: none;
@@ -47,17 +52,23 @@ const BackButton = styled.button`
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  transition: background 0.2s ease;
+  transition: background-color 0.2s ease;
 
   &:hover {
     background: rgba(0, 0, 0, 0.9);
   }
 `;
 
-const MovieInfo = styled.div`
-  max-width: 1200px;
+const MovieInfo = styled.div<{ backdropUrl?: string }>`
+  max-width: 1442px;
+  background: ${(props) =>
+    props.backdropUrl
+      ? `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url(${props.backdropUrl})`
+      : "#1a1a1a"};
+  background-size: cover;
+
   margin: 0 auto;
-  padding: 0 24px 32px;
+  padding: 32px;
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: 32px;
@@ -92,16 +103,15 @@ const Title = styled.h1`
 `;
 
 const OriginalTitle = styled.h2`
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
-  color: #888;
-  margin: 8px 0 0 0;
-  font-style: italic;
+  color: #b5b2bc;
+  margin: 8px 0 19px 0;
 `;
 
 const Tagline = styled.p`
-  font-size: 18px;
-  color: #ffd700;
+  font-size: 16px;
+  color: #eeeef0;
   font-style: italic;
   margin: 0;
 `;
@@ -137,18 +147,31 @@ const GenresList = styled.div`
 `;
 
 const GenreTag = styled.span`
-  background: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #c150ff2e;
+  border-radius: 2px;
+  height: 31px;
   padding: 4px 12px;
   font-size: 12px;
   color: #fff;
 `;
 
+const WrapperTitle = styled.section`
+  display: flex;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.6;
+  color: #b5b2bc;
+  margin: 0;
+`;
+
 const Overview = styled.p`
   font-size: 16px;
   line-height: 1.6;
-  color: #ccc;
+  font-weight: 400;
+  color: #eeeef0;
   margin: 0;
 `;
 
@@ -159,17 +182,24 @@ const ProductionInfo = styled.div`
   margin-top: 32px;
 `;
 
-const InfoSection = styled.div`
-  background: #1a1a1a;
-  border-radius: 8px;
-  padding: 20px;
+const InfoSection = styled.div<{ width?: string }>`
+  display: flex;
+  width: ${(props) => props.width || "100%"};
+
+  flex-direction: column;
+  max-height: fit-content;
+  background: rgba(35, 34, 37, 0.6);
+  border-radius: 4px;
+  padding: 16px;
+  gap: 8px;
 `;
 
 const InfoTitle = styled.h3`
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0 0 12px 0;
-  color: #ffd700;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin: 0;
+  color: #b5b2bc;
 `;
 
 const InfoList = styled.ul`
@@ -178,9 +208,10 @@ const InfoList = styled.ul`
   margin: 0;
 `;
 
-const InfoItem = styled.li`
+const InfoItem = styled.p`
   font-size: 14px;
-  color: #ccc;
+  font-weight: 700;
+  color: #eeeef0;
   margin-bottom: 8px;
 
   &:last-child {
@@ -204,6 +235,16 @@ export const MovieDetailsPage: React.FC = () => {
   const getMovieDetailsUseCase = useGetMovieDetailsUseCase();
 
   const { state, actions } = useMovieDetailsViewModel(getMovieDetailsUseCase);
+
+  const formatRatingPercentage = (rating: number): string => {
+    return `${Math.round(rating * 10)}`;
+  };
+
+  const getFillColor = (percentage: number) => {
+    if (percentage <= 50) return "#ff4444";
+    if (percentage <= 75) return "#ffd700";
+    return "#00cc00";
+  };
 
   useEffect(() => {
     if (id) {
@@ -240,132 +281,184 @@ export const MovieDetailsPage: React.FC = () => {
   }
 
   const movie = state.movie;
+  const ratingPercentage = movie.vote_average * 10;
+  const radius = 60;
+  const circumference = 2 * Math.PI * radius;
 
   return (
     <PageContainer>
       <BackdropContainer backdropUrl={getBackdropUrl(movie.backdrop_path)}>
+        <Header>
+          <HeaderContent>
+            <img src="../../../src/assets/Cubos-Movies-Title.svg" alt="" />
+          </HeaderContent>
+        </Header>
         <BackButton onClick={handleBack}>
           <ArrowLeft size={16} />
           Voltar
         </BackButton>
       </BackdropContainer>
-
-      <MovieInfo>
+      <MovieInfo backdropUrl={getBackdropUrl(movie.backdrop_path)}>
         <PosterImage src={getPosterUrl(movie.poster_path)} alt={movie.title} />
 
         <MovieDetails>
-          <div>
-            <Title>{movie.title}</Title>
-            {movie.original_title !== movie.title && (
-              <OriginalTitle>{movie.original_title}</OriginalTitle>
-            )}
-            {movie.tagline && <Tagline>"{movie.tagline}"</Tagline>}
-          </div>
-
-          <MetaInfo>
-            <Rating>
-              <Star size={20} fill="currentColor" />
-              {formatRating(movie.vote_average)}
-              <span style={{ color: "#888", fontSize: "14px" }}>
-                ({formatVoteCount(movie.vote_count)} votos)
-              </span>
-            </Rating>
-
-            <MetaItem>
-              <Calendar size={16} />
-              {formatDate(movie.release_date)}
-            </MetaItem>
-
-            {movie.runtime && (
-              <MetaItem>
-                <Clock size={16} />
-                {formatRuntime(movie.runtime)}
-              </MetaItem>
-            )}
-          </MetaInfo>
-
-          {movie.genres.length > 0 && (
-            <GenresList>
-              {movie.genres.map((genre) => (
-                <GenreTag key={genre.id}>{genre.name}</GenreTag>
-              ))}
-            </GenresList>
-          )}
-
-          {movie.overview && <Overview>{movie.overview}</Overview>}
-
-          <ProductionInfo>
-            {movie.budget > 0 && (
+          <section
+            style={{
+              display: "flex",
+              flexDirection: window.innerWidth < 768 ? "column" : "row",
+              gap: "16px",
+              justifyContent: "space-between",
+              maxHeight: window.innerWidth < 768 ? "100%" : "120px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <div>
+                <Title>{movie.title}</Title>
+                <OriginalTitle>
+                  Título original: {movie.original_title}
+                </OriginalTitle>
+              </div>
+              {movie.tagline && <Tagline>{movie.tagline}</Tagline>}
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                gap: "16px",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
               <InfoSection>
-                <InfoTitle>Orçamento</InfoTitle>
-                <InfoItem>{formatCurrency(movie.budget)}</InfoItem>
+                <InfoTitle>Popularidade</InfoTitle>
+                <InfoItem>{movie.popularity}</InfoItem>
               </InfoSection>
-            )}
-
-            {movie.revenue > 0 && (
               <InfoSection>
-                <InfoTitle>Receita</InfoTitle>
-                <InfoItem>{formatCurrency(movie.revenue)}</InfoItem>
+                <InfoTitle>Votos</InfoTitle>
+                <InfoItem>{movie.vote_count}</InfoItem>
               </InfoSection>
-            )}
-
-            {movie.production_companies.length > 0 && (
+              <RatingCircle opacity={1} position="relative">
+                <svg width="140" height="140" viewBox="0 0 140 140">
+                  <circle
+                    cx="70"
+                    cy="70"
+                    r={radius}
+                    fill="#00000080"
+                    stroke={getFillColor(ratingPercentage)}
+                    strokeWidth="10"
+                    stroke-width="9"
+                  />
+                  <circle
+                    cx="70"
+                    cy="70"
+                    r={radius}
+                    fill="none"
+                    stroke="#444444"
+                    strokeWidth="10"
+                    strokeDasharray={`${
+                      circumference - (ratingPercentage / 100) * circumference
+                    } ${circumference}`}
+                    strokeDashoffset="0"
+                    transform="rotate(-90 70 70)"
+                  />
+                </svg>
+                <RatingText>
+                  <RatingPercentage
+                    style={{ color: getFillColor(ratingPercentage) }}
+                  >
+                    {formatRatingPercentage(movie.vote_average)}
+                  </RatingPercentage>
+                  <span>%</span>
+                </RatingText>
+              </RatingCircle>
+            </div>
+          </section>
+          <section
+            style={{
+              display: "flex",
+              flexDirection: window.innerWidth < 768 ? "column" : "row",
+              gap: "16px",
+            }}
+          >
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+            >
               <InfoSection>
-                <InfoTitle>Produtoras</InfoTitle>
-                <InfoList>
-                  {movie.production_companies.slice(0, 5).map((company) => (
-                    <InfoItem key={company.id}>{company.name}</InfoItem>
-                  ))}
-                </InfoList>
+                <WrapperTitle>SINOPSE</WrapperTitle>
+                {movie.overview && <Overview>{movie.overview}</Overview>}
               </InfoSection>
-            )}
-
-            {movie.production_countries.length > 0 && (
               <InfoSection>
-                <InfoTitle>Países</InfoTitle>
-                <InfoList>
-                  {movie.production_countries.map((country) => (
-                    <InfoItem key={country.iso_3166_1}>{country.name}</InfoItem>
-                  ))}
-                </InfoList>
-              </InfoSection>
-            )}
-
-            {movie.spoken_languages.length > 0 && (
-              <InfoSection>
-                <InfoTitle>Idiomas</InfoTitle>
-                <InfoList>
-                  {movie.spoken_languages.map((language) => (
-                    <InfoItem key={language.iso_639_1}>
-                      {language.name}
-                    </InfoItem>
-                  ))}
-                </InfoList>
-              </InfoSection>
-            )}
-
-            <InfoSection>
-              <InfoTitle>Informações</InfoTitle>
-              <InfoList>
-                <InfoItem>Status: {movie.status}</InfoItem>
-                <InfoItem>
-                  Idioma original: {movie.original_language.toUpperCase()}
-                </InfoItem>
-                {movie.imdb_id && (
-                  <InfoItem>
-                    <a
-                      href={`https://www.imdb.com/title/${movie.imdb_id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ color: "#ffd700", textDecoration: "none" }}
-                    >
-                      Ver no IMDb
-                    </a>
-                  </InfoItem>
+                <WrapperTitle>Gêneros</WrapperTitle>
+                {movie.genres.length > 0 && (
+                  <GenresList>
+                    {movie.genres.map((genre) => (
+                      <GenreTag key={genre.id}>{genre.name}</GenreTag>
+                    ))}
+                  </GenresList>
                 )}
-              </InfoList>
-            </InfoSection>
-          </ProductionInfo>
+              </InfoSection>
+            </div>
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+            >
+              <div
+                style={{ display: "flex", flexDirection: "row", gap: "16px" }}
+              >
+                <InfoSection>
+                  <InfoTitle>Lançamento</InfoTitle>
+                  <InfoItem>{formatDate(movie.release_date)}</InfoItem>
+                </InfoSection>
+                <InfoSection>
+                  <InfoTitle>Duração</InfoTitle>
+                  <InfoItem>{formatRuntime(movie.runtime)}</InfoItem>
+                </InfoSection>
+              </div>
+              <div
+                style={{ display: "flex", flexDirection: "row", gap: "16px" }}
+              >
+                <InfoSection>
+                  <InfoTitle>Situação</InfoTitle>
+                  <InfoItem>{translateStatus(movie.status)}</InfoItem>
+                </InfoSection>
+                <InfoSection>
+                  <InfoTitle>Idioma</InfoTitle>
+                  <InfoItem>
+                    {translateLanguage(movie.original_language)}
+                  </InfoItem>
+                </InfoSection>
+              </div>
+              <div
+                style={{ display: "flex", flexDirection: "row", gap: "16px" }}
+              >
+                <InfoSection>
+                  <InfoTitle>Orçamento</InfoTitle>
+                  <InfoItem>
+                    {movie.budget ? formatMovieBudget(movie.budget) : "N/A"}
+                  </InfoItem>
+                </InfoSection>
+                <InfoSection>
+                  <InfoTitle>Receita</InfoTitle>
+                  <InfoItem>
+                    {movie.revenue ? formatMovieBudget(movie.revenue) : "N/A"}
+                  </InfoItem>
+                </InfoSection>
+                <InfoSection>
+                  <InfoTitle>Lucro</InfoTitle>
+                  <InfoItem>
+                    {movie.revenue
+                      ? calculateProfit(movie.revenue, movie.budget)
+                      : "N/A"}
+                  </InfoItem>
+                </InfoSection>
+              </div>
+            </div>
+          </section>
         </MovieDetails>
       </MovieInfo>
     </PageContainer>
