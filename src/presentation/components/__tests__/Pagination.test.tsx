@@ -131,7 +131,5 @@ describe("Pagination", () => {
 
     const currentPageButton = screen.getByText("3");
     expect(currentPageButton).toBeInTheDocument();
-    // The active styling is applied via styled-components,
-    // so we can't easily test the visual styling in unit tests
   });
 });

@@ -59,7 +59,6 @@ const ClearButton = styled.button`
   }
 `;
 
-// Custom debounce hook
 const useDebounce = (callback: (value: string) => void, delay: number) => {
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
 
@@ -86,12 +85,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState(value);
 
-  // Update input value when prop value changes
   useEffect(() => {
     setInputValue(value);
   }, [value]);
 
-  // Debounced search function
   const debouncedSearch = useDebounce(onSearch, 500);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

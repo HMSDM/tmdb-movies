@@ -30,7 +30,7 @@ describe("MovieCard", () => {
     render(<MovieCard movie={mockMovie} onClick={mockOnClick} />);
 
     expect(screen.getByText("Test Movie")).toBeInTheDocument();
-    expect(screen.getByText("2022")).toBeInTheDocument(); // JavaScript interpreta como UTC
+    expect(screen.getByText("2022")).toBeInTheDocument();
     expect(screen.getByText("7.5")).toBeInTheDocument();
   });
 
@@ -64,14 +64,13 @@ describe("MovieCard", () => {
     render(<MovieCard movie={movieWithoutDate} onClick={mockOnClick} />);
 
     expect(screen.getByText("Test Movie")).toBeInTheDocument();
-    // Year should be empty string when no release date
+
     expect(screen.queryByText("2022")).not.toBeInTheDocument();
   });
 
   it("should display star icon for rating", () => {
     render(<MovieCard movie={mockMovie} onClick={mockOnClick} />);
 
-    // Check if star icon is present (Lucide Star component)
     const starIcon = document.querySelector("svg");
     expect(starIcon).toBeInTheDocument();
   });
