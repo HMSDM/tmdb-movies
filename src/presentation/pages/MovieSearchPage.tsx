@@ -135,7 +135,6 @@ export const MovieSearchPage: React.FC = () => {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [shouldRoll, setShouldRoll] = useState(false);
   const filtersRef = useRef<HTMLDivElement>(null);
-
   const pageContainerRef = useRef<HTMLDivElement>(null);
 
   const { state, actions } = useMovieSearchViewModel(
@@ -175,18 +174,6 @@ export const MovieSearchPage: React.FC = () => {
     };
   }, [isFiltersOpen]);
 
-  const handleMovieClick = (movie: Movie) => {
-    navigate(`/movie/${movie.id}`);
-  };
-
-  const handleSearch = (query: string) => {
-    actions.updateFilters({ query });
-    actions.searchMovies({ ...state.filters, query, page: 1 });
-    if (query.toLowerCase().trim() === "cubos") {
-      setShouldRoll(true);
-    }
-  };
-
   useEffect(() => {
     if (shouldRoll && pageContainerRef.current) {
       const element = pageContainerRef.current;
@@ -204,6 +191,18 @@ export const MovieSearchPage: React.FC = () => {
       };
     }
   }, [shouldRoll]);
+
+  const handleMovieClick = (movie: Movie) => {
+    navigate(`/movie/${movie.id}`);
+  };
+
+  const handleSearch = (query: string) => {
+    actions.updateFilters({ query });
+    actions.searchMovies({ ...state.filters, query, page: 1 });
+    if (query.toLowerCase().trim() === "cubos") {
+      setShouldRoll(true);
+    }
+  };
 
   const handleFiltersChange = (newFilters: any) => {
     actions.updateFilters(newFilters);
@@ -268,6 +267,7 @@ export const MovieSearchPage: React.FC = () => {
                 <MovieCard
                   key={movie.id}
                   movie={movie}
+                  genres={state.genres}
                   onClick={handleMovieClick}
                 />
               ))}
