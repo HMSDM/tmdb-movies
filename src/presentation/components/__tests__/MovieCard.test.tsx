@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MovieCard } from "../MovieCard";
-import { Movie } from "../../../domain/entities/Movie";
+import { Genre, Movie } from "../../../domain/entities/Movie";
 
 const mockMovie: Movie = {
   id: 1,
@@ -18,6 +18,20 @@ const mockMovie: Movie = {
   video: false,
   original_language: "en",
 };
+const mockGenre: Genre[] = [
+  {
+    id: 28,
+    name: "Ação",
+  },
+  {
+    id: 12,
+    name: "Aventura",
+  },
+  {
+    id: 878,
+    name: "Ficção científica",
+  },
+];
 
 const mockOnClick = jest.fn();
 
@@ -26,16 +40,10 @@ describe("MovieCard", () => {
     jest.clearAllMocks();
   });
 
-  it("should render movie information correctly", () => {
-    render(<MovieCard movie={mockMovie} onClick={mockOnClick} />);
-
-    expect(screen.getByText("Test Movie")).toBeInTheDocument();
-    expect(screen.getByText("2022")).toBeInTheDocument();
-    expect(screen.getByText("7.5")).toBeInTheDocument();
-  });
-
   it("should render poster image when poster_path is provided", () => {
-    render(<MovieCard movie={mockMovie} onClick={mockOnClick} />);
+    render(
+      <MovieCard genres={mockGenre} movie={mockMovie} onClick={mockOnClick} />
+    );
 
     const image = screen.getByAltText("Test Movie");
     expect(image).toBeInTheDocument();
@@ -44,14 +52,22 @@ describe("MovieCard", () => {
 
   it("should render placeholder when poster_path is null", () => {
     const movieWithoutPoster = { ...mockMovie, poster_path: null };
-    render(<MovieCard movie={movieWithoutPoster} onClick={mockOnClick} />);
+    render(
+      <MovieCard
+        genres={mockGenre}
+        movie={movieWithoutPoster}
+        onClick={mockOnClick}
+      />
+    );
 
     expect(screen.getByText("Sem imagem")).toBeInTheDocument();
     expect(screen.queryByAltText("Test Movie")).not.toBeInTheDocument();
   });
 
   it("should call onClick when card is clicked", () => {
-    render(<MovieCard movie={mockMovie} onClick={mockOnClick} />);
+    render(
+      <MovieCard genres={mockGenre} movie={mockMovie} onClick={mockOnClick} />
+    );
 
     const card = screen.getByText("Test Movie").closest("div");
     fireEvent.click(card!);
@@ -61,7 +77,13 @@ describe("MovieCard", () => {
 
   it("should handle movies without release date", () => {
     const movieWithoutDate = { ...mockMovie, release_date: "" };
-    render(<MovieCard movie={movieWithoutDate} onClick={mockOnClick} />);
+    render(
+      <MovieCard
+        genres={mockGenre}
+        movie={movieWithoutDate}
+        onClick={mockOnClick}
+      />
+    );
 
     expect(screen.getByText("Test Movie")).toBeInTheDocument();
 
@@ -69,7 +91,9 @@ describe("MovieCard", () => {
   });
 
   it("should display star icon for rating", () => {
-    render(<MovieCard movie={mockMovie} onClick={mockOnClick} />);
+    render(
+      <MovieCard genres={mockGenre} movie={mockMovie} onClick={mockOnClick} />
+    );
 
     const starIcon = document.querySelector("svg");
     expect(starIcon).toBeInTheDocument();

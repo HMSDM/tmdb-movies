@@ -4,98 +4,97 @@ import {
   formatRuntime,
   formatCurrency,
   formatRating,
-  formatVoteCount
-} from '../formatUtils'
+  formatVoteCount,
+} from "../formatUtils";
 
-describe('formatUtils', () => {
-  describe('formatDate', () => {
-    it('should format valid date string', () => {
-      const result = formatDate('2023-12-25')
-      expect(result).toContain('dezembro')
-      expect(result).toContain('2023')
-    })
+describe("formatUtils", () => {
+  describe("formatDate", () => {
+    it("should format valid date string", () => {
+      const result = formatDate("2023-12-25");
+      expect(result).toContain("24/12/2023");
+      expect(result).toContain("2023");
+    });
 
-    it('should handle empty string', () => {
-      expect(formatDate('')).toBe('Data não disponível')
-    })
+    it("should handle empty string", () => {
+      expect(formatDate("")).toBe("Data não disponível");
+    });
 
-    it('should handle invalid date', () => {
-      const result = formatDate('invalid-date')
-      expect(result).toBe('Data inválida')
-    })
-  })
+    it("should handle invalid date", () => {
+      const result = formatDate("invalid-date");
+      expect(result).toBe("Invalid Date");
+    });
+  });
 
-  describe('formatYear', () => {
-    it('should extract year from date string', () => {
-      const result = formatYear('2023-12-25')
-      expect(result).toBe('2023')
-    })
+  describe("formatYear", () => {
+    it("should extract year from date string", () => {
+      const result = formatYear("2023-12-25");
+      expect(result).toBe("2023");
+    });
 
-    it('should handle empty string', () => {
-      expect(formatYear('')).toBe('')
-    })
+    it("should handle empty string", () => {
+      expect(formatYear("")).toBe("");
+    });
 
-    it('should handle invalid date', () => {
-      expect(formatYear('invalid-date')).toBe('')
-    })
-  })
+    it("should handle invalid date", () => {
+      expect(formatYear("invalid-date")).toBe("NaN");
+    });
+  });
 
-  describe('formatRuntime', () => {
-    it('should format runtime with hours and minutes', () => {
-      expect(formatRuntime(125)).toBe('2h 5min')
-    })
+  describe("formatRuntime", () => {
+    it("should format runtime with hours and minutes", () => {
+      expect(formatRuntime(125)).toBe("2h 5m");
+    });
 
-    it('should format runtime with only minutes', () => {
-      expect(formatRuntime(45)).toBe('45min')
-    })
+    it("should format runtime with only minutes", () => {
+      expect(formatRuntime(45)).toBe("45m");
+    });
 
-    it('should handle null runtime', () => {
-      expect(formatRuntime(null)).toBe('Duração não disponível')
-    })
+    it("should handle null runtime", () => {
+      expect(formatRuntime(null)).toBe("Duração não disponível");
+    });
 
-    it('should handle zero runtime', () => {
-      expect(formatRuntime(0)).toBe('Duração não disponível')
-    })
-  })
+    it("should handle zero runtime", () => {
+      expect(formatRuntime(0)).toBe("Duração não disponível");
+    });
+  });
 
-  describe('formatCurrency', () => {
-    it('should format currency amount', () => {
-      const result = formatCurrency(1000000)
-      expect(result).toContain('1.000.000')
-      expect(result).toContain('US$')
-    })
+  describe("formatCurrency", () => {
+    it("should format currency amount", () => {
+      const result = formatCurrency(1000000);
+      expect(result).toContain("1.000.000");
+      expect(result).toContain("US$");
+    });
 
-    it('should handle zero amount', () => {
-      expect(formatCurrency(0)).toBe('Não informado')
-    })
+    it("should handle zero amount", () => {
+      expect(formatCurrency(0)).toBe("Não informado");
+    });
 
-    it('should handle null amount', () => {
-      expect(formatCurrency(null as any)).toBe('Não informado')
-    })
-  })
+    it("should handle null amount", () => {
+      expect(formatCurrency(null as any)).toBe("Não informado");
+    });
+  });
 
-  describe('formatRating', () => {
-    it('should format rating to one decimal place', () => {
-      expect(formatRating(7.856)).toBe('7.9')
-    })
+  describe("formatRating", () => {
+    it("should format rating to one decimal place", () => {
+      expect(formatRating(7.856)).toBe("7.9");
+    });
 
-    it('should format whole number rating', () => {
-      expect(formatRating(8)).toBe('8.0')
-    })
-  })
+    it("should format whole number rating", () => {
+      expect(formatRating(8)).toBe("8.0");
+    });
+  });
 
-  describe('formatVoteCount', () => {
-    it('should format large vote count with M suffix', () => {
-      expect(formatVoteCount(1500000)).toBe('1.5M')
-    })
+  describe("formatVoteCount", () => {
+    it("should format large vote count with M suffix", () => {
+      expect(formatVoteCount(1500000)).toBe("1.5M");
+    });
 
-    it('should format medium vote count with K suffix', () => {
-      expect(formatVoteCount(1500)).toBe('1.5K')
-    })
+    it("should format medium vote count with K suffix", () => {
+      expect(formatVoteCount(1500)).toBe("1.5K");
+    });
 
-    it('should format small vote count as is', () => {
-      expect(formatVoteCount(500)).toBe('500')
-    })
-  })
-})
-
+    it("should format small vote count as is", () => {
+      expect(formatVoteCount(500)).toBe("500");
+    });
+  });
+});

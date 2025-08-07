@@ -70,20 +70,29 @@ const Subtitle = styled.p`
   transition: opacity 0.3s ease;
 `;
 
-export const RatingCircle = styled.div<{ opacity?: number; position?: string }>`
+export const RatingCircle = styled.div<{
+  opacity?: number;
+  position?: string;
+  width?: string;
+  height?: string;
+}>`
   position: ${(props) => props.position || "absolute"};
   top: ${(props) => (props.position === "relative" ? "autop" : "40%")};
   left: ${(props) => (props.position === "relative" ? "auto" : "50%")};
   transform: ${(props) =>
     props.position === "relative" ? "none" : "translate(-50%, -50%)"};
-  width: 140px;
-  height: 140px;
+  width: ${(props) => props.width || "140px"};
+  height: ${(props) => props.height || "140px"};
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: ${(props) => props.opacity || 0};
 
   transition: opacity 0.3s ease;
+  @media (max-width: 768px) {
+    width: 100%;
+    height: auto;
+  }
 `;
 
 export const RatingText = styled.span`
