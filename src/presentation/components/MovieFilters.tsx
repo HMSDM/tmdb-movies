@@ -92,10 +92,10 @@ const ApplyButton = styled.button`
   padding: 8px 16px;
   font-size: 14px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background-color 0.4s ease;
 
   &:hover {
-    background: #b744f7;
+    background-color: #b744f714;
   }
 `;
 

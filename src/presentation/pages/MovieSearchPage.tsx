@@ -35,9 +35,9 @@ const PageContainer = styled.div`
 `;
 
 const Header = styled.header`
-  background: #1a1a1a;
+  background: #121113;
   padding: 24px 0;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid #f1e6fd30;
 `;
 
 const HeaderContent = styled.div`
@@ -55,6 +55,7 @@ const Title = styled.h1`
 `;
 
 const SearchContainer = styled.div`
+  position: relative;
   justify-content: center;
   display: flex;
   align-items: center;
@@ -83,13 +84,27 @@ const FilterButton = styled.button`
 `;
 
 const MainContent = styled.main`
-  max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px 32px;
   position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url(./src/assets/backgropund-krists-luhaers-unsplash.png);
+    background-size: cover;
+    opacity: 0.5;
+  }
 `;
 
 const MoviesGrid = styled.div`
+  background: #b744f714;
+  padding: 24px;
+  border-radius: 4px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 24px;
@@ -107,6 +122,7 @@ const ErrorMessage = styled.div`
 `;
 
 const EmptyState = styled.div`
+  position: relative;
   text-align: center;
   padding: 64px 24px;
   color: #888;
@@ -115,7 +131,7 @@ const EmptyState = styled.div`
 const EmptyTitle = styled.h3`
   font-size: 24px;
   margin: 0 0 16px 0;
-  color: #666;
+  color: #fff;
 `;
 
 const EmptyText = styled.p`
@@ -124,6 +140,7 @@ const EmptyText = styled.p`
 `;
 
 const ResultsContainer = styled.div`
+  position: relative;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -326,6 +343,7 @@ export const MovieSearchPage: React.FC = () => {
               .filter(
                 ([key, value]) =>
                   key !== "page" &&
+                  key !== "query" &&
                   value !== undefined &&
                   value !== "popularity.desc"
               )

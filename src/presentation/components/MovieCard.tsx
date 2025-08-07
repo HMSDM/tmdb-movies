@@ -47,6 +47,7 @@ const TitleContainer = styled.div`
   background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
   padding: 16px;
   transition: transform 0.3s ease;
+  margin-bottom: -10px;
 `;
 
 const Title = styled.h3`
@@ -80,16 +81,21 @@ const RatingCircle = styled.div`
   align-items: center;
   justify-content: center;
   opacity: 0;
+
   transition: opacity 0.3s ease;
 `;
 
 const RatingText = styled.span`
   position: absolute;
   color: #ffffff;
-  font-size: 24px;
+  font-size: 14px;
   font-weight: 600;
   z-index: 1;
   text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+`;
+
+const RatingPercentage = styled.span`
+  font-size: 24px;
 `;
 
 const HoverContainer = styled.div`
@@ -126,7 +132,7 @@ export const MovieCard: React.FC<MovieCardProps> = ({
 
   // Format rating as percentage
   const formatRatingPercentage = (rating: number): string => {
-    return `${Math.round(rating * 10)}%`;
+    return `${Math.round(rating * 10)}`;
   };
 
   // Determine fill color based on rating
@@ -167,7 +173,7 @@ export const MovieCard: React.FC<MovieCardProps> = ({
               cx="70"
               cy="70"
               r={radius}
-              fill="none"
+              fill="#00000080"
               stroke={getFillColor(ratingPercentage)}
               strokeWidth="10"
               stroke-width="9"
@@ -186,7 +192,12 @@ export const MovieCard: React.FC<MovieCardProps> = ({
               transform="rotate(-90 70 70)"
             />
           </svg>
-          <RatingText>{formatRatingPercentage(movie.vote_average)}</RatingText>
+          <RatingText>
+            <RatingPercentage style={{ color: getFillColor(ratingPercentage) }}>
+              {formatRatingPercentage(movie.vote_average)}
+            </RatingPercentage>
+            <span>%</span>
+          </RatingText>
         </RatingCircle>
       </HoverContainer>
     </CardContainer>

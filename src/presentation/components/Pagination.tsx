@@ -8,6 +8,7 @@ interface PaginationProps {
 }
 
 const PaginationContainer = styled.div`
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -18,10 +19,12 @@ const PaginationContainer = styled.div`
 const PageButton = styled.button.withConfig({
   shouldForwardProp: (prop) => prop !== "active",
 })<{ active?: boolean }>`
-  background: ${(props) => (props.active ? "#ffd700" : "#2a2a2a")};
-  color: ${(props) => (props.active ? "#000" : "#fff")};
-  border: 1px solid ${(props) => (props.active ? "#ffd700" : "#444")};
-  border-radius: 4px;
+  background: ${(props) => (props.active ? "#EBEAF814" : "#8E4EC6")};
+  color: ${(props) => (props.active ? "#EAE6FD6E" : "#fff")};
+  border: 1px solid ${(props) => (props.active ? "#EBEAF814" : "#8E4EC6")};
+  border-radius: 2px;
+  height: 44px;
+  width: 49px;
   padding: 8px 12px;
   font-size: 14px;
   cursor: pointer;
@@ -29,11 +32,13 @@ const PageButton = styled.button.withConfig({
   min-width: 40px;
 
   &:hover:not(:disabled) {
-    background: ${(props) => (props.active ? "#ffd700" : "#444")};
+    background: ${(props) => (props.active ? "#EBEAF814" : "#8E4EC6")};
   }
 
   &:disabled {
     opacity: 0.5;
+    background-color: #ebeaf814;
+    border-color: #ebeaf814;
     cursor: not-allowed;
   }
 `;
@@ -43,6 +48,7 @@ const NavButton = styled(PageButton)`
   align-items: center;
   justify-content: center;
   padding: 8px;
+  width: 64px;
 `;
 
 const PageInfo = styled.span`
