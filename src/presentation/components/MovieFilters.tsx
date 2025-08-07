@@ -14,6 +14,12 @@ const FiltersContainer = styled.div`
   padding: 24px;
   border-radius: 8px;
   margin-bottom: 24px;
+  position: absolute;
+  top: 100px;
+  left: 24px;
+  right: 24px;
+  z-index: 10;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 `;
 
 const FiltersGrid = styled.div`
@@ -151,7 +157,7 @@ export const MovieFilters: React.FC<MovieFiltersProps> = ({
           <Label>Gênero</Label>
           <Select
             value={filters.genre || ""}
-            onChange={(e) =>
+            onChange={(e: any) =>
               onFiltersChange({ genre: e.target.value || undefined })
             }
           >
@@ -172,7 +178,7 @@ export const MovieFilters: React.FC<MovieFiltersProps> = ({
             min="1900"
             max={currentYear}
             value={filters.year || ""}
-            onChange={(e) =>
+            onChange={(e: any) =>
               onFiltersChange({
                 year: e.target.value ? parseInt(e.target.value) : undefined,
               })
@@ -184,7 +190,7 @@ export const MovieFilters: React.FC<MovieFiltersProps> = ({
           <Label>Ordenar por</Label>
           <Select
             value={filters.sortBy || "popularity.desc"}
-            onChange={(e) =>
+            onChange={(e: any) =>
               onFiltersChange({ sortBy: e.target.value as SortOption })
             }
           >
@@ -205,7 +211,7 @@ export const MovieFilters: React.FC<MovieFiltersProps> = ({
               max="10"
               step="0.5"
               value={filters.minRating || 0}
-              onChange={(e) =>
+              onChange={(e: any) =>
                 onFiltersChange({
                   minRating: parseFloat(e.target.value) || undefined,
                 })

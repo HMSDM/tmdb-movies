@@ -10,9 +10,9 @@ interface SearchBarProps {
 
 const SearchContainer = styled.div`
   width: 100%;
+  max-width: 488px;
   display: flex;
   align-items: center;
-  margin: 0 auto 32px;
   background: #2a2a2a;
   border: 2px solid #444;
   border-radius: 8px;

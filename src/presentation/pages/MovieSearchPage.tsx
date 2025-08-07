@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { MovieCard } from "../components/MovieCard";
@@ -12,6 +12,7 @@ import {
   useGetGenresUseCase,
 } from "../../infrastructure/di/container";
 import { Movie } from "../../domain/entities/Movie";
+import { SlidersVertical } from "lucide-react";
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -39,16 +40,39 @@ const Title = styled.h1`
   color: #ffd700;
 `;
 
-const Subtitle = styled.p`
+const SearchContainer = styled.div`
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+  margin: 0 auto;
+  padding: 32px 24px;
+`;
+
+const FilterButton = styled.button`
+  background-color: #8e4ec6;
+  border: 2px solid #b744f714;
+  border-radius: 2px;
+  color: #ffffff;
+  padding: 16px;
   font-size: 16px;
-  color: #888;
-  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.4s ease;
+
+  &:hover {
+    background-color: #b744f714;
+  }
 `;
 
 const MainContent = styled.main`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 32px 24px;
+  padding: 0 24px 32px;
+  position: relative;
 `;
 
 const MoviesGrid = styled.div`
@@ -95,6 +119,8 @@ export const MovieSearchPage: React.FC = () => {
   const navigate = useNavigate();
   const searchMoviesUseCase = useSearchMoviesUseCase();
   const getGenresUseCase = useGetGenresUseCase();
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const filtersRef = useRef<HTMLDivElement>(null);
 
   const { state, actions } = useMovieSearchViewModel(
     searchMoviesUseCase,
@@ -102,7 +128,6 @@ export const MovieSearchPage: React.FC = () => {
   );
 
   useEffect(() => {
-    // Carregar gêneros e filmes populares na inicialização
     const loadData = async () => {
       if (state.genres.length === 0) {
         await actions.loadGenres();
@@ -112,7 +137,27 @@ export const MovieSearchPage: React.FC = () => {
       }
     };
     loadData();
-  }, []); // Mantenha o array de dependências vazio para executar apenas uma vez
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        filtersRef.current &&
+        !filtersRef.current.contains(event.target as Node) &&
+        !(event.target as HTMLElement).closest("button")
+      ) {
+        setIsFiltersOpen(false);
+      }
+    };
+
+    if (isFiltersOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isFiltersOpen]);
 
   const handleMovieClick = (movie: Movie) => {
     navigate(`/movie/${movie.id}`);
@@ -142,23 +187,31 @@ export const MovieSearchPage: React.FC = () => {
       <Header>
         <HeaderContent>
           <img src="./src/assets/Cubos-Movies-Title.svg" alt="" />
-          {/* <Subtitle>Descubra filmes incríveis</Subtitle> */}
         </HeaderContent>
       </Header>
 
       <MainContent>
-        <SearchBar
-          value={state.filters.query || ""}
-          onSearch={handleSearch}
-          placeholder="Pesquise por filmes"
-        />
+        <SearchContainer>
+          <SearchBar
+            value={state.filters.query || ""}
+            onSearch={handleSearch}
+            placeholder="Pesquise por filmes"
+          />
+          <FilterButton onClick={() => setIsFiltersOpen(!isFiltersOpen)}>
+            <SlidersVertical size={20} />
+          </FilterButton>
+        </SearchContainer>
 
-        <MovieFilters
-          filters={state.filters}
-          genres={state.genres}
-          onFiltersChange={handleFiltersChange}
-          onReset={handleResetFilters}
-        />
+        {isFiltersOpen && (
+          <div ref={filtersRef}>
+            <MovieFilters
+              filters={state.filters}
+              genres={state.genres}
+              onFiltersChange={handleFiltersChange}
+              onReset={handleResetFilters}
+            />
+          </div>
+        )}
 
         {state.error && <ErrorMessage>{state.error}</ErrorMessage>}
 
@@ -185,7 +238,7 @@ export const MovieSearchPage: React.FC = () => {
 
             <Pagination
               currentPage={state.pagination.currentPage}
-              totalPages={Math.min(state.pagination.totalPages, 500)} // TMDB limita a 500 páginas
+              totalPages={Math.min(state.pagination.totalPages, 500)}
               onPageChange={handlePageChange}
             />
           </>
