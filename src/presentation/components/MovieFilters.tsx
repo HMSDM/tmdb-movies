@@ -1,13 +1,12 @@
-import React from 'react'
-import styled from 'styled-components'
-import { Genre } from '../../domain/entities/Movie'
-import { MovieFilters as Filters, SortOption } from '../../shared/types'
+import styled from "styled-components";
+import { Genre } from "../../domain/entities/Movie";
+import { MovieFilters as Filters, SortOption } from "../../shared/types";
 
 interface MovieFiltersProps {
-  filters: Filters
-  genres: Genre[]
-  onFiltersChange: (filters: Partial<Filters>) => void
-  onReset: () => void
+  filters: Filters;
+  genres: Genre[];
+  onFiltersChange: (filters: Partial<Filters>) => void;
+  onReset: () => void;
 }
 
 const FiltersContainer = styled.div`
@@ -15,26 +14,26 @@ const FiltersContainer = styled.div`
   padding: 24px;
   border-radius: 8px;
   margin-bottom: 24px;
-`
+`;
 
 const FiltersGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
   margin-bottom: 16px;
-`
+`;
 
 const FilterGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
-`
+`;
 
 const Label = styled.label`
   color: #ffffff;
   font-size: 14px;
   font-weight: 500;
-`
+`;
 
 const Select = styled.select`
   background: #2a2a2a;
@@ -43,17 +42,17 @@ const Select = styled.select`
   color: #ffffff;
   padding: 8px 12px;
   font-size: 14px;
-  
+
   &:focus {
     outline: none;
     border-color: #666;
   }
-  
+
   option {
     background: #2a2a2a;
     color: #ffffff;
   }
-`
+`;
 
 const Input = styled.input`
   background: #2a2a2a;
@@ -62,22 +61,22 @@ const Input = styled.input`
   color: #ffffff;
   padding: 8px 12px;
   font-size: 14px;
-  
+
   &:focus {
     outline: none;
     border-color: #666;
   }
-  
+
   &::placeholder {
     color: #888;
   }
-`
+`;
 
 const RangeContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
-`
+`;
 
 const RangeInput = styled.input`
   width: 100%;
@@ -85,7 +84,7 @@ const RangeInput = styled.input`
   border-radius: 2px;
   background: #444;
   outline: none;
-  
+
   &::-webkit-slider-thumb {
     appearance: none;
     width: 16px;
@@ -94,7 +93,7 @@ const RangeInput = styled.input`
     background: #ffd700;
     cursor: pointer;
   }
-  
+
   &::-moz-range-thumb {
     width: 16px;
     height: 16px;
@@ -103,13 +102,13 @@ const RangeInput = styled.input`
     cursor: pointer;
     border: none;
   }
-`
+`;
 
 const RangeValue = styled.span`
   color: #888;
   font-size: 12px;
   text-align: center;
-`
+`;
 
 const ResetButton = styled.button`
   background: #444;
@@ -120,42 +119,44 @@ const ResetButton = styled.button`
   font-size: 14px;
   cursor: pointer;
   transition: background 0.2s ease;
-  
+
   &:hover {
     background: #555;
   }
-`
+`;
 
 const sortOptions: { value: SortOption; label: string }[] = [
-  { value: 'popularity.desc', label: 'Mais Popular' },
-  { value: 'popularity.asc', label: 'Menos Popular' },
-  { value: 'vote_average.desc', label: 'Melhor Avaliado' },
-  { value: 'vote_average.asc', label: 'Pior Avaliado' },
-  { value: 'primary_release_date.desc', label: 'Mais Recente' },
-  { value: 'primary_release_date.asc', label: 'Mais Antigo' },
-  { value: 'title.asc', label: 'Título A-Z' },
-  { value: 'title.desc', label: 'Título Z-A' }
-]
+  { value: "popularity.desc", label: "Mais Popular" },
+  { value: "popularity.asc", label: "Menos Popular" },
+  { value: "vote_average.desc", label: "Melhor Avaliado" },
+  { value: "vote_average.asc", label: "Pior Avaliado" },
+  { value: "primary_release_date.desc", label: "Mais Recente" },
+  { value: "primary_release_date.asc", label: "Mais Antigo" },
+  { value: "title.asc", label: "Título A-Z" },
+  { value: "title.desc", label: "Título Z-A" },
+];
 
 export const MovieFilters: React.FC<MovieFiltersProps> = ({
   filters,
   genres,
   onFiltersChange,
-  onReset
+  onReset,
 }) => {
-  const currentYear = new Date().getFullYear()
-  
+  const currentYear = new Date().getFullYear();
+
   return (
     <FiltersContainer>
       <FiltersGrid>
         <FilterGroup>
           <Label>Gênero</Label>
           <Select
-            value={filters.genre || ''}
-            onChange={(e) => onFiltersChange({ genre: e.target.value || undefined })}
+            value={filters.genre || ""}
+            onChange={(e) =>
+              onFiltersChange({ genre: e.target.value || undefined })
+            }
           >
             <option value="">Todos os gêneros</option>
-            {genres.map(genre => (
+            {genres.map((genre) => (
               <option key={genre.id} value={genre.id}>
                 {genre.name}
               </option>
@@ -170,20 +171,24 @@ export const MovieFilters: React.FC<MovieFiltersProps> = ({
             placeholder="Ex: 2023"
             min="1900"
             max={currentYear}
-            value={filters.year || ''}
-            onChange={(e) => onFiltersChange({ 
-              year: e.target.value ? parseInt(e.target.value) : undefined 
-            })}
+            value={filters.year || ""}
+            onChange={(e) =>
+              onFiltersChange({
+                year: e.target.value ? parseInt(e.target.value) : undefined,
+              })
+            }
           />
         </FilterGroup>
 
         <FilterGroup>
           <Label>Ordenar por</Label>
           <Select
-            value={filters.sortBy || 'popularity.desc'}
-            onChange={(e) => onFiltersChange({ sortBy: e.target.value as SortOption })}
+            value={filters.sortBy || "popularity.desc"}
+            onChange={(e) =>
+              onFiltersChange({ sortBy: e.target.value as SortOption })
+            }
           >
-            {sortOptions.map(option => (
+            {sortOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -200,21 +205,20 @@ export const MovieFilters: React.FC<MovieFiltersProps> = ({
               max="10"
               step="0.5"
               value={filters.minRating || 0}
-              onChange={(e) => onFiltersChange({ 
-                minRating: parseFloat(e.target.value) || undefined 
-              })}
+              onChange={(e) =>
+                onFiltersChange({
+                  minRating: parseFloat(e.target.value) || undefined,
+                })
+              }
             />
             <RangeValue>
-              {filters.minRating ? `${filters.minRating}+` : 'Qualquer nota'}
+              {filters.minRating ? `${filters.minRating}+` : "Qualquer nota"}
             </RangeValue>
           </RangeContainer>
         </FilterGroup>
       </FiltersGrid>
 
-      <ResetButton onClick={onReset}>
-        Limpar Filtros
-      </ResetButton>
+      <ResetButton onClick={onReset}>Limpar Filtros</ResetButton>
     </FiltersContainer>
-  )
-}
-
+  );
+};

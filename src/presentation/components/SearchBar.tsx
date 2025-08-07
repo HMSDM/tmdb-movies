@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react'
-import styled from 'styled-components'
-import { Search, X } from 'lucide-react'
+import { useState, useCallback, useEffect } from "react";
+import styled from "styled-components";
+import { Search, X } from "lucide-react";
 
 interface SearchBarProps {
-  value: string
-  onSearch: (query: string) => void
-  placeholder?: string
+  value: string;
+  onSearch: (query: string) => void;
+  placeholder?: string;
 }
 
 const SearchContainer = styled.div`
@@ -13,7 +13,7 @@ const SearchContainer = styled.div`
   width: 100%;
   max-width: 600px;
   margin: 0 auto 32px;
-`
+`;
 
 const SearchInput = styled.input`
   width: 100%;
@@ -24,16 +24,16 @@ const SearchInput = styled.input`
   padding: 16px 48px 16px 48px;
   font-size: 16px;
   transition: border-color 0.2s ease;
-  
+
   &:focus {
     outline: none;
     border-color: #ffd700;
   }
-  
+
   &::placeholder {
     color: #888;
   }
-`
+`;
 
 const SearchIcon = styled.div`
   position: absolute;
@@ -42,7 +42,7 @@ const SearchIcon = styled.div`
   transform: translateY(-50%);
   color: #888;
   pointer-events: none;
-`
+`;
 
 const ClearButton = styled.button`
   position: absolute;
@@ -56,55 +56,83 @@ const ClearButton = styled.button`
   padding: 4px;
   border-radius: 4px;
   transition: color 0.2s ease;
-  
+
   &:hover {
     color: #fff;
   }
-`
+`;
+
+// Custom debounce hook
+const useDebounce = (callback: (value: string) => void, delay: number) => {
+  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+
+  const debouncedCallback = useCallback(
+    (value: string) => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      const id = setTimeout(() => {
+        callback(value);
+      }, delay);
+      setTimeoutId(id);
+    },
+    [callback, delay, timeoutId]
+  );
+
+  return debouncedCallback;
+};
 
 export const SearchBar: React.FC<SearchBarProps> = ({
   value,
   onSearch,
-  placeholder = 'Pesquisar filmes...'
+  placeholder = "Pesquisar filmes...",
 }) => {
-  const [inputValue, setInputValue] = useState(value)
+  const [inputValue, setInputValue] = useState(value);
 
+  // Update input value when prop value changes
   useEffect(() => {
-    setInputValue(value)
-  }, [value])
+    setInputValue(value);
+  }, [value]);
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      onSearch(inputValue)
-    }, 500) // Debounce de 500ms
+  // Debounced search function
+  const debouncedSearch = useDebounce(onSearch, 500);
 
-    return () => clearTimeout(timeoutId)
-  }, [inputValue, onSearch])
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setInputValue(newValue);
+    debouncedSearch(newValue);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      onSearch(inputValue);
+    }
+  };
 
   const handleClear = () => {
-    setInputValue('')
-    onSearch('')
-  }
+    setInputValue("");
+    onSearch("");
+  };
 
   return (
     <SearchContainer>
       <SearchIcon>
         <Search size={20} />
       </SearchIcon>
-      
+
       <SearchInput
         type="text"
         value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
         placeholder={placeholder}
       />
-      
+
       {inputValue && (
         <ClearButton onClick={handleClear}>
           <X size={20} />
         </ClearButton>
       )}
     </SearchContainer>
-  )
-}
-
+  );
+};

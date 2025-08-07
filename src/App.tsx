@@ -1,12 +1,11 @@
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { MovieSearchPage } from './presentation/pages/MovieSearchPage'
-import { MovieDetailsPage } from './presentation/pages/MovieDetailsPage'
-import { validateApiConfig } from './infrastructure/config/apiConfig'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { MovieSearchPage } from "./presentation/pages/MovieSearchPage";
+import { MovieDetailsPage } from "./presentation/pages/MovieDetailsPage";
+import { validateApiConfig } from "./infrastructure/config/apiConfig";
+import "./App.css";
 
 // Validar configuração da API na inicialização
-validateApiConfig()
+validateApiConfig();
 
 function App() {
   return (
@@ -16,8 +15,7 @@ function App() {
         <Route path="/movie/:id" element={<MovieDetailsPage />} />
       </Routes>
     </Router>
-  )
+  );
 }
 
-export default App
-
+export default App;
