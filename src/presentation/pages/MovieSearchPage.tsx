@@ -141,8 +141,8 @@ export const MovieSearchPage: React.FC = () => {
     <PageContainer>
       <Header>
         <HeaderContent>
-          <Title>TMDB Movies</Title>
-          <Subtitle>Descubra filmes incríveis</Subtitle>
+          <img src="./src/assets/Cubos-Movies-Title.svg" alt="" />
+          {/* <Subtitle>Descubra filmes incríveis</Subtitle> */}
         </HeaderContent>
       </Header>
 
@@ -150,7 +150,7 @@ export const MovieSearchPage: React.FC = () => {
         <SearchBar
           value={state.filters.query || ""}
           onSearch={handleSearch}
-          placeholder="Pesquisar filmes..."
+          placeholder="Pesquise por filmes"
         />
 
         <MovieFilters

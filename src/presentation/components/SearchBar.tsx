@@ -9,21 +9,22 @@ interface SearchBarProps {
 }
 
 const SearchContainer = styled.div`
-  position: relative;
   width: 100%;
-  max-width: 600px;
+  display: flex;
+  align-items: center;
   margin: 0 auto 32px;
+  background: #2a2a2a;
+  border: 2px solid #444;
+  border-radius: 8px;
+  padding: 16px;
+  transition: border-color 0.2s ease;
+  justify-content: center;
 `;
 
 const SearchInput = styled.input`
   width: 100%;
-  background: #2a2a2a;
-  border: 2px solid #444;
-  border-radius: 8px;
   color: #ffffff;
-  padding: 16px 48px 16px 48px;
   font-size: 16px;
-  transition: border-color 0.2s ease;
 
   &:focus {
     outline: none;
@@ -36,10 +37,6 @@ const SearchInput = styled.input`
 `;
 
 const SearchIcon = styled.div`
-  position: absolute;
-  left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
   color: #888;
   pointer-events: none;
 `;
@@ -116,10 +113,6 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
   return (
     <SearchContainer>
-      <SearchIcon>
-        <Search size={20} />
-      </SearchIcon>
-
       <SearchInput
         type="text"
         value={inputValue}
@@ -127,7 +120,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
       />
-
+      <SearchIcon>
+        <Search size={20} />
+      </SearchIcon>
       {inputValue && (
         <ClearButton onClick={handleClear}>
           <X size={20} />
