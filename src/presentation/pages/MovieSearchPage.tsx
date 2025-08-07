@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { MovieCard } from "../components/MovieCard";
 import { SearchBar } from "../components/SearchBar";
@@ -14,10 +14,23 @@ import {
 import { Movie } from "../../domain/entities/Movie";
 import { SlidersVertical } from "lucide-react";
 
+const barrelRoll = keyframes`
+  0% {
+    transform: perspective(1000px) rotateY(0);
+  }
+  100% {
+    transform: perspective(1000px) rotateY(360deg);
+  }
+`;
+
 const PageContainer = styled.div`
   min-height: 100vh;
   background: #0a0a0a;
   color: #ffffff;
+
+  &.barrel-roll {
+    animation: ${barrelRoll} 1s linear;
+  }
 `;
 
 const Header = styled.header`
@@ -120,7 +133,10 @@ export const MovieSearchPage: React.FC = () => {
   const searchMoviesUseCase = useSearchMoviesUseCase();
   const getGenresUseCase = useGetGenresUseCase();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [shouldRoll, setShouldRoll] = useState(false);
   const filtersRef = useRef<HTMLDivElement>(null);
+
+  const pageContainerRef = useRef<HTMLDivElement>(null);
 
   const { state, actions } = useMovieSearchViewModel(
     searchMoviesUseCase,
@@ -166,7 +182,28 @@ export const MovieSearchPage: React.FC = () => {
   const handleSearch = (query: string) => {
     actions.updateFilters({ query });
     actions.searchMovies({ ...state.filters, query, page: 1 });
+    if (query.toLowerCase().trim() === "cubos") {
+      setShouldRoll(true);
+    }
   };
+
+  useEffect(() => {
+    if (shouldRoll && pageContainerRef.current) {
+      const element = pageContainerRef.current;
+      element.classList.add("barrel-roll");
+
+      const handleAnimationEnd = () => {
+        element.classList.remove("barrel-roll");
+        setShouldRoll(false);
+      };
+
+      element.addEventListener("animationend", handleAnimationEnd);
+
+      return () => {
+        element.removeEventListener("animationend", handleAnimationEnd);
+      };
+    }
+  }, [shouldRoll]);
 
   const handleFiltersChange = (newFilters: any) => {
     actions.updateFilters(newFilters);
@@ -183,7 +220,7 @@ export const MovieSearchPage: React.FC = () => {
   };
 
   return (
-    <PageContainer>
+    <PageContainer ref={pageContainerRef}>
       <Header>
         <HeaderContent>
           <img src="./src/assets/Cubos-Movies-Title.svg" alt="" />
