@@ -11,8 +11,9 @@ import {
   useSearchMoviesUseCase,
   useGetGenresUseCase,
 } from "../../infrastructure/di/container";
-import { Movie } from "../../domain/entities/Movie";
-import { SlidersVertical } from "lucide-react";
+import { Movie, Genre } from "../../domain/entities/Movie";
+import { SlidersVertical, X } from "lucide-react";
+import { SortOption } from "../../shared/types";
 
 const barrelRoll = keyframes`
   0% {
@@ -122,10 +123,42 @@ const EmptyText = styled.p`
   margin: 0;
 `;
 
-const ResultsInfo = styled.div`
+const ResultsContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
   margin-bottom: 24px;
+`;
+
+const ResultsInfo = styled.div`
   color: #888;
   font-size: 14px;
+`;
+
+const FilterTag = styled.div`
+  display: inline-flex;
+  align-items: center;
+  background: #8e4ec6;
+  border: 1px solid #8e4ec6;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+  color: #ffffff;
+`;
+
+const RemoveFilterButton = styled.button`
+  background: none;
+  border: none;
+  color: #ff6666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+  padding: 0;
+
+  &:hover {
+    color: #ff8888;
+  }
 `;
 
 export const MovieSearchPage: React.FC = () => {
@@ -204,9 +237,16 @@ export const MovieSearchPage: React.FC = () => {
     }
   };
 
-  const handleFiltersChange = (newFilters: any) => {
+  const handleApplyFilters = (newFilters: any) => {
     actions.updateFilters(newFilters);
-    actions.searchMovies({ ...state.filters, ...newFilters, page: 1 });
+    actions.searchMovies({ ...newFilters, page: 1 });
+    setIsFiltersOpen(false);
+  };
+
+  const handleRemoveFilter = (filterKey: keyof typeof state.filters) => {
+    const newFilters = { ...state.filters, [filterKey]: undefined };
+    actions.updateFilters(newFilters);
+    actions.searchMovies({ ...newFilters, page: 1 });
   };
 
   const handlePageChange = (page: number) => {
@@ -216,6 +256,31 @@ export const MovieSearchPage: React.FC = () => {
   const handleResetFilters = () => {
     actions.resetFilters();
     actions.searchMovies({ page: 1, sortBy: "popularity.desc" });
+  };
+
+  const sortOptions: { value: SortOption; label: string }[] = [
+    { value: "popularity.desc", label: "Mais Popular" },
+    { value: "popularity.asc", label: "Menos Popular" },
+    { value: "vote_average.desc", label: "Melhor Avaliado" },
+    { value: "vote_average.asc", label: "Pior Avaliado" },
+    { value: "primary_release_date.desc", label: "Mais Recente" },
+    { value: "primary_release_date.asc", label: "Mais Antigo" },
+    { value: "title.asc", label: "Título A-Z" },
+    { value: "title.desc", label: "Título Z-A" },
+  ];
+
+  const getFilterLabel = (key: keyof typeof state.filters, value: any) => {
+    if (key === "genre") {
+      const genre = state.genres.find((g) => g.id === parseInt(value));
+      return genre ? genre.name : "Gênero desconhecido";
+    }
+    if (key === "year") return value.toString();
+    if (key === "sortBy") {
+      const sortOption = sortOptions.find((option) => option.value === value);
+      return sortOption ? sortOption.label : value;
+    }
+    if (key === "minRating") return `Nota mínima: ${value}`;
+    return value;
   };
 
   return (
@@ -243,7 +308,7 @@ export const MovieSearchPage: React.FC = () => {
             <MovieFilters
               filters={state.filters}
               genres={state.genres}
-              onFiltersChange={handleFiltersChange}
+              onApplyFilters={handleApplyFilters}
               onReset={handleResetFilters}
             />
           </div>
@@ -252,10 +317,35 @@ export const MovieSearchPage: React.FC = () => {
         {state.error && <ErrorMessage>{state.error}</ErrorMessage>}
 
         {state.pagination.totalResults > 0 && (
-          <ResultsInfo>
-            {state.pagination.totalResults.toLocaleString("pt-BR")} filmes
-            encontrados
-          </ResultsInfo>
+          <ResultsContainer>
+            <ResultsInfo>
+              {state.pagination.totalResults.toLocaleString("pt-BR")} filmes
+              encontrados
+            </ResultsInfo>
+            {Object.entries(state.filters)
+              .filter(
+                ([key, value]) =>
+                  key !== "page" &&
+                  value !== undefined &&
+                  value !== "popularity.desc"
+              )
+              .map(([key, value]) => (
+                <FilterTag key={key}>
+                  {getFilterLabel(key as keyof typeof state.filters, value)}
+                  <RemoveFilterButton
+                    onClick={() =>
+                      handleRemoveFilter(key as keyof typeof state.filters)
+                    }
+                    aria-label={`Remover filtro ${getFilterLabel(
+                      key as keyof typeof state.filters,
+                      value
+                    )}`}
+                  >
+                    <X stroke="#fff" size={16} />
+                  </RemoveFilterButton>
+                </FilterTag>
+              ))}
+          </ResultsContainer>
         )}
 
         {state.loading ? (

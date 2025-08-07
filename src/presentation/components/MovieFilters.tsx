@@ -1,11 +1,12 @@
 import styled from "styled-components";
 import { Genre } from "../../domain/entities/Movie";
 import { MovieFilters as Filters, SortOption } from "../../shared/types";
+import { useState } from "react";
 
 interface MovieFiltersProps {
   filters: Filters;
   genres: Genre[];
-  onFiltersChange: (filters: Partial<Filters>) => void;
+  onApplyFilters: (filters: Partial<Filters>) => void;
   onReset: () => void;
 }
 
@@ -78,42 +79,24 @@ const Input = styled.input`
   }
 `;
 
-const RangeContainer = styled.div`
+const ButtonContainer = styled.div`
   display: flex;
-  flex-direction: column;
   gap: 8px;
 `;
 
-const RangeInput = styled.input`
-  width: 100%;
-  height: 4px;
-  border-radius: 2px;
-  background: #444;
-  outline: none;
+const ApplyButton = styled.button`
+  background: #8e4ec6;
+  border: none;
+  border-radius: 4px;
+  color: #ffffff;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
 
-  &::-webkit-slider-thumb {
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #ffd700;
-    cursor: pointer;
+  &:hover {
+    background: #b744f7;
   }
-
-  &::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #ffd700;
-    cursor: pointer;
-    border: none;
-  }
-`;
-
-const RangeValue = styled.span`
-  color: #888;
-  font-size: 12px;
-  text-align: center;
 `;
 
 const ResetButton = styled.button`
@@ -142,13 +125,40 @@ const sortOptions: { value: SortOption; label: string }[] = [
   { value: "title.desc", label: "Título Z-A" },
 ];
 
+const ratingOptions: { value: number; label: string }[] = [
+  { value: 0, label: "Qualquer nota" },
+  { value: 1, label: "1+" },
+  { value: 2, label: "2+" },
+  { value: 3, label: "3+" },
+  { value: 4, label: "4+" },
+  { value: 5, label: "5+" },
+  { value: 6, label: "6+" },
+  { value: 7, label: "7+" },
+  { value: 8, label: "8+" },
+  { value: 9, label: "9+" },
+];
+
 export const MovieFilters: React.FC<MovieFiltersProps> = ({
   filters,
   genres,
-  onFiltersChange,
+  onApplyFilters,
   onReset,
 }) => {
   const currentYear = new Date().getFullYear();
+  const [tempFilters, setTempFilters] = useState<Partial<Filters>>(filters);
+
+  const handleFilterChange = (newFilter: Partial<Filters>) => {
+    setTempFilters((prev) => ({ ...prev, ...newFilter }));
+  };
+
+  const handleApply = () => {
+    onApplyFilters(tempFilters);
+  };
+
+  const handleReset = () => {
+    setTempFilters({ sortBy: "popularity.desc" });
+    onReset();
+  };
 
   return (
     <FiltersContainer>
@@ -156,9 +166,9 @@ export const MovieFilters: React.FC<MovieFiltersProps> = ({
         <FilterGroup>
           <Label>Gênero</Label>
           <Select
-            value={filters.genre || ""}
+            value={tempFilters.genre || ""}
             onChange={(e: any) =>
-              onFiltersChange({ genre: e.target.value || undefined })
+              handleFilterChange({ genre: e.target.value || undefined })
             }
           >
             <option value="">Todos os gêneros</option>
@@ -177,9 +187,9 @@ export const MovieFilters: React.FC<MovieFiltersProps> = ({
             placeholder="Ex: 2023"
             min="1900"
             max={currentYear}
-            value={filters.year || ""}
+            value={tempFilters.year || ""}
             onChange={(e: any) =>
-              onFiltersChange({
+              handleFilterChange({
                 year: e.target.value ? parseInt(e.target.value) : undefined,
               })
             }
@@ -189,9 +199,9 @@ export const MovieFilters: React.FC<MovieFiltersProps> = ({
         <FilterGroup>
           <Label>Ordenar por</Label>
           <Select
-            value={filters.sortBy || "popularity.desc"}
+            value={tempFilters.sortBy || "popularity.desc"}
             onChange={(e: any) =>
-              onFiltersChange({ sortBy: e.target.value as SortOption })
+              handleFilterChange({ sortBy: e.target.value as SortOption })
             }
           >
             {sortOptions.map((option) => (
@@ -204,27 +214,27 @@ export const MovieFilters: React.FC<MovieFiltersProps> = ({
 
         <FilterGroup>
           <Label>Nota mínima</Label>
-          <RangeContainer>
-            <RangeInput
-              type="range"
-              min="0"
-              max="10"
-              step="0.5"
-              value={filters.minRating || 0}
-              onChange={(e: any) =>
-                onFiltersChange({
-                  minRating: parseFloat(e.target.value) || undefined,
-                })
-              }
-            />
-            <RangeValue>
-              {filters.minRating ? `${filters.minRating}+` : "Qualquer nota"}
-            </RangeValue>
-          </RangeContainer>
+          <Select
+            value={tempFilters.minRating || 0}
+            onChange={(e: any) =>
+              handleFilterChange({
+                minRating: parseFloat(e.target.value) || undefined,
+              })
+            }
+          >
+            {ratingOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
         </FilterGroup>
       </FiltersGrid>
 
-      <ResetButton onClick={onReset}>Limpar Filtros</ResetButton>
+      <ButtonContainer>
+        <ApplyButton onClick={handleApply}>Aplicar Filtros</ApplyButton>
+        <ResetButton onClick={handleReset}>Limpar Filtros</ResetButton>
+      </ButtonContainer>
     </FiltersContainer>
   );
 };

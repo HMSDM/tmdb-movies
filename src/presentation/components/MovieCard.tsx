@@ -170,6 +170,7 @@ export const MovieCard: React.FC<MovieCardProps> = ({
               fill="none"
               stroke={getFillColor(ratingPercentage)}
               strokeWidth="10"
+              stroke-width="9"
             />
             <circle
               cx="70"
