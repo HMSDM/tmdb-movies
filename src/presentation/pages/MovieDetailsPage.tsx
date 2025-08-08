@@ -239,7 +239,9 @@ export const MovieDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const getMovieDetailsUseCase = useGetMovieDetailsUseCase();
 
-  const { state, actions } = useMovieDetailsViewModel(getMovieDetailsUseCase);
+  const { movieInfo, actions } = useMovieDetailsViewModel(
+    getMovieDetailsUseCase
+  );
 
   const formatRatingPercentage = (rating: number): string => {
     return `${Math.round(rating * 10)}`;
@@ -261,7 +263,7 @@ export const MovieDetailsPage: React.FC = () => {
     navigate(-1);
   };
 
-  if (state.loading) {
+  if (movieInfo.loading) {
     return (
       <PageContainer>
         <LoadingSpinner />
@@ -269,15 +271,15 @@ export const MovieDetailsPage: React.FC = () => {
     );
   }
 
-  if (state.error) {
+  if (movieInfo.error) {
     return (
       <PageContainer>
-        <ErrorMessage>{state.error}</ErrorMessage>
+        <ErrorMessage>{movieInfo.error}</ErrorMessage>
       </PageContainer>
     );
   }
 
-  if (!state.movie) {
+  if (!movieInfo.movie) {
     return (
       <PageContainer>
         <ErrorMessage>Filme não encontrado</ErrorMessage>
@@ -285,7 +287,7 @@ export const MovieDetailsPage: React.FC = () => {
     );
   }
 
-  const movie = state.movie;
+  const movie = movieInfo.movie;
   const ratingPercentage = movie.vote_average * 10;
   const radius = 60;
   const circumference = 2 * Math.PI * radius;

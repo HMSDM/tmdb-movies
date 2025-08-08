@@ -1,55 +1,61 @@
-import { useState, useCallback } from 'react'
-import { MovieDetails } from '../../domain/entities/Movie'
-import { GetMovieDetailsUseCase } from '../../domain/usecases/GetMovieDetailsUseCase'
+import { useState, useCallback } from "react";
+import { MovieDetails } from "../../domain/entities/Movie";
+import { GetMovieDetailsUseCase } from "../../domain/usecases/GetMovieDetailsUseCase";
 
 export interface MovieDetailsViewModelState {
-  movie: MovieDetails | null
-  loading: boolean
-  error: string | null
+  movie: MovieDetails | null;
+  loading: boolean;
+  error: string | null;
 }
 
 export const useMovieDetailsViewModel = (
   getMovieDetailsUseCase: GetMovieDetailsUseCase
 ) => {
-  const [state, setState] = useState<MovieDetailsViewModelState>({
+  const [movieInfo, setMovieInfo] = useState<MovieDetailsViewModelState>({
     movie: null,
     loading: false,
-    error: null
-  })
+    error: null,
+  });
 
   const setLoading = useCallback((loading: boolean) => {
-    setState(prev => ({ ...prev, loading }))
-  }, [])
+    setMovieInfo((prev) => ({ ...prev, loading }));
+  }, []);
 
   const setError = useCallback((error: string | null) => {
-    setState(prev => ({ ...prev, error }))
-  }, [])
+    setMovieInfo((prev) => ({ ...prev, error }));
+  }, []);
 
-  const loadMovieDetails = useCallback(async (id: number) => {
-    setLoading(true)
-    setError(null)
+  const loadMovieDetails = useCallback(
+    async (id: number) => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      const movie = await getMovieDetailsUseCase.execute(id)
-      setState(prev => ({ ...prev, movie }))
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Erro ao carregar detalhes do filme')
-    } finally {
-      setLoading(false)
-    }
-  }, [getMovieDetailsUseCase, setLoading, setError])
+      try {
+        const movie = await getMovieDetailsUseCase.execute(id);
+        setMovieInfo((prev) => ({ ...prev, movie }));
+      } catch (error) {
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Erro ao carregar detalhes do filme"
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    [getMovieDetailsUseCase, setLoading, setError]
+  );
 
   const clearMovie = useCallback(() => {
-    setState(prev => ({ ...prev, movie: null, error: null }))
-  }, [])
+    setMovieInfo((prev) => ({ ...prev, movie: null, error: null }));
+  }, []);
 
   return {
-    state,
+    movieInfo,
     actions: {
       loadMovieDetails,
       clearMovie,
-      setError
-    }
-  }
-}
-
+      setError,
+    },
+  };
+};

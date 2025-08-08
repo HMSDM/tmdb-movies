@@ -50,39 +50,44 @@ src/
 
 ### Pré-requisitos
 
-- Node.js 18+ 
-- pnpm (recomendado) ou npm
+- Node.js 18+
+- npm
 
 ### Configuração
 
 1. **Clone o repositório**
+
    ```bash
    git clone <url-do-repositorio>
    cd tmdb-movies
    ```
 
 2. **Instale as dependências**
+
    ```bash
-   pnpm install
+   npm install
    ```
 
 3. **Configure a API Key do TMDB**
-   
+
    Crie um arquivo `.env` na raiz do projeto:
+
    ```env
    VITE_TMDB_API_KEY=sua_chave_da_api_aqui
    VITE_TMDB_BASE_URL=https://api.themoviedb.org/3
    ```
 
    Para obter uma chave da API:
+
    1. Acesse [TMDB](https://www.themoviedb.org/)
    2. Crie uma conta
    3. Vá em Settings > API
    4. Solicite uma chave da API
 
 4. **Execute o projeto**
+
    ```bash
-   pnpm dev
+   npm run dev
    ```
 
    A aplicação estará disponível em `http://localhost:5173`
@@ -93,13 +98,13 @@ Execute os testes unitários:
 
 ```bash
 # Executar todos os testes
-pnpm test
+npm test
 
 # Executar testes em modo watch
-pnpm test:watch
+npm test:watch
 
 # Executar testes com coverage
-pnpm test:coverage
+npm test:coverage
 ```
 
 ## 📦 Build
@@ -107,7 +112,7 @@ pnpm test:coverage
 Para gerar a versão de produção:
 
 ```bash
-pnpm build
+npm build
 ```
 
 Os arquivos serão gerados na pasta `dist/`.
@@ -132,7 +137,7 @@ O design foi baseado no [Figma fornecido](https://www.figma.com/design/yhag2s5vJ
 - **Filtros disponíveis**:
   - Gênero (baseado na API do TMDB)
   - Ano de lançamento
-  - Nota mínima (slider de 0-10)
+  - Nota mínima (select de 0-10)
   - Ordenação (popularidade, avaliação, data, título)
 - **Paginação** com navegação inteligente
 - **Estado vazio** quando não há resultados
@@ -145,35 +150,22 @@ O design foi baseado no [Figma fornecido](https://www.figma.com/design/yhag2s5vJ
 - **Metadados**: data de lançamento, duração, avaliação
 - **Gêneros** como tags
 - **Informações de produção**: orçamento, receita, produtoras
-- **Link para IMDb** quando disponível
+- **Link para Vídeo** quando disponível
 
 ## 🔧 Scripts Disponíveis
 
-- `pnpm dev` - Inicia servidor de desenvolvimento
-- `pnpm build` - Gera build de produção
-- `pnpm preview` - Visualiza build de produção
-- `pnpm test` - Executa testes
-- `pnpm test:watch` - Executa testes em modo watch
-- `pnpm test:coverage` - Executa testes com relatório de cobertura
-- `pnpm lint` - Executa linting do código
+- `npm run dev` - Inicia servidor de desenvolvimento
+- `npm build` - Gera build de produção
+- `npm preview` - Visualiza build de produção
+- `npm test` - Executa testes
+- `npm test:watch` - Executa testes em modo watch
+- `npm test:coverage` - Executa testes com relatório de cobertura
+- `npm lint` - Executa linting do código
 
 ## 📄 Licença
 
 Este projeto foi desenvolvido como parte de um desafio técnico.
 
-## 🤝 Contribuição
-
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 📞 Suporte
-
-Se você encontrar algum problema ou tiver dúvidas, por favor abra uma issue no repositório.
-
 ---
 
 Desenvolvido com ❤️ usando React + TypeScript
-

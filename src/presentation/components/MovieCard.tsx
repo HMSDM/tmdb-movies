@@ -1,5 +1,5 @@
-import styled, { css } from "styled-components";
-import { Movie, Genre } from "../../domain/entities/Movie";
+import styled from "styled-components";
+import { Genre, Movie } from "../../domain/entities/Movie";
 import { getPosterUrl } from "../../shared/utils/imageUtils";
 
 interface MovieCardProps {
@@ -156,9 +156,6 @@ export const MovieCard: React.FC<MovieCardProps> = ({
 
   const radius = 60;
   const circumference = 2 * Math.PI * radius;
-  const strokeDasharray = `${
-    (ratingPercentage / 100) * circumference
-  } ${circumference}`;
 
   return (
     <CardContainer onClick={handleClick}>

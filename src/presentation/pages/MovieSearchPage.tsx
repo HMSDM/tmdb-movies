@@ -1,19 +1,19 @@
-import { useEffect, useState, useRef } from "react";
-import styled, { keyframes } from "styled-components";
+import { SlidersVertical, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import styled, { keyframes } from "styled-components";
+import { Movie } from "../../domain/entities/Movie";
+import {
+  useGetGenresUseCase,
+  useSearchMoviesUseCase,
+} from "../../infrastructure/di/container";
+import { SortOption } from "../../shared/types";
+import { LoadingSpinner } from "../components/LoadingSpinner";
 import { MovieCard } from "../components/MovieCard";
-import { SearchBar } from "../components/SearchBar";
 import { MovieFilters } from "../components/MovieFilters";
 import { Pagination } from "../components/Pagination";
-import { LoadingSpinner } from "../components/LoadingSpinner";
+import { SearchBar } from "../components/SearchBar";
 import { useMovieSearchViewModel } from "../viewmodels/MovieSearchViewModel";
-import {
-  useSearchMoviesUseCase,
-  useGetGenresUseCase,
-} from "../../infrastructure/di/container";
-import { Movie, Genre } from "../../domain/entities/Movie";
-import { SlidersVertical, X } from "lucide-react";
-import { SortOption } from "../../shared/types";
 
 const barrelRoll = keyframes`
   0% {
@@ -45,13 +45,6 @@ export const HeaderContent = styled.div`
   margin: 0 auto;
   padding: 0 24px;
   text-align: center;
-`;
-
-const Title = styled.h1`
-  font-size: 32px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-  color: #ffd700;
 `;
 
 const SearchContainer = styled.div`
@@ -187,17 +180,17 @@ export const MovieSearchPage: React.FC = () => {
   const filtersRef = useRef<HTMLDivElement>(null);
   const pageContainerRef = useRef<HTMLDivElement>(null);
 
-  const { state, actions } = useMovieSearchViewModel(
+  const { movieSearchInfo, actions } = useMovieSearchViewModel(
     searchMoviesUseCase,
     getGenresUseCase
   );
 
   useEffect(() => {
     const loadData = async () => {
-      if (state.genres.length === 0) {
+      if (movieSearchInfo.genres.length === 0) {
         await actions.loadGenres();
       }
-      if (state.movies.length === 0 && !state.loading) {
+      if (movieSearchInfo.movies.length === 0 && !movieSearchInfo.loading) {
         await actions.searchMovies();
       }
     };
@@ -248,7 +241,7 @@ export const MovieSearchPage: React.FC = () => {
 
   const handleSearch = (query: string) => {
     actions.updateFilters({ query });
-    actions.searchMovies({ ...state.filters, query, page: 1 });
+    actions.searchMovies({ ...movieSearchInfo.filters, query, page: 1 });
     if (query.toLowerCase().trim() === "cubos") {
       setShouldRoll(true);
     }
@@ -260,8 +253,10 @@ export const MovieSearchPage: React.FC = () => {
     setIsFiltersOpen(false);
   };
 
-  const handleRemoveFilter = (filterKey: keyof typeof state.filters) => {
-    const newFilters = { ...state.filters, [filterKey]: undefined };
+  const handleRemoveFilter = (
+    filterKey: keyof typeof movieSearchInfo.filters
+  ) => {
+    const newFilters = { ...movieSearchInfo.filters, [filterKey]: undefined };
     actions.updateFilters(newFilters);
     actions.searchMovies({ ...newFilters, page: 1 });
   };
@@ -286,9 +281,14 @@ export const MovieSearchPage: React.FC = () => {
     { value: "title.desc", label: "Título Z-A" },
   ];
 
-  const getFilterLabel = (key: keyof typeof state.filters, value: any) => {
+  const getFilterLabel = (
+    key: keyof typeof movieSearchInfo.filters,
+    value: any
+  ) => {
     if (key === "genre") {
-      const genre = state.genres.find((g) => g.id === parseInt(value));
+      const genre = movieSearchInfo.genres.find(
+        (g) => g.id === parseInt(value)
+      );
       return genre ? genre.name : "Gênero desconhecido";
     }
     if (key === "year") return value.toString();
@@ -311,7 +311,7 @@ export const MovieSearchPage: React.FC = () => {
       <MainContent>
         <SearchContainer>
           <SearchBar
-            value={state.filters.query || ""}
+            value={movieSearchInfo.filters.query || ""}
             onSearch={handleSearch}
             placeholder="Pesquise por filmes"
           />
@@ -323,23 +323,25 @@ export const MovieSearchPage: React.FC = () => {
         {isFiltersOpen && (
           <div ref={filtersRef}>
             <MovieFilters
-              filters={state.filters}
-              genres={state.genres}
+              filters={movieSearchInfo.filters}
+              genres={movieSearchInfo.genres}
               onApplyFilters={handleApplyFilters}
               onReset={handleResetFilters}
             />
           </div>
         )}
 
-        {state.error && <ErrorMessage>{state.error}</ErrorMessage>}
+        {movieSearchInfo.error && (
+          <ErrorMessage>{movieSearchInfo.error}</ErrorMessage>
+        )}
 
-        {state.pagination.totalResults > 0 && (
+        {movieSearchInfo.pagination.totalResults > 0 && (
           <ResultsContainer>
             <ResultsInfo>
-              {state.pagination.totalResults.toLocaleString("pt-BR")} filmes
-              encontrados
+              {movieSearchInfo.pagination.totalResults.toLocaleString("pt-BR")}{" "}
+              filmes encontrados
             </ResultsInfo>
-            {Object.entries(state.filters)
+            {Object.entries(movieSearchInfo.filters)
               .filter(
                 ([key, value]) =>
                   key !== "page" &&
@@ -349,13 +351,18 @@ export const MovieSearchPage: React.FC = () => {
               )
               .map(([key, value]) => (
                 <FilterTag key={key}>
-                  {getFilterLabel(key as keyof typeof state.filters, value)}
+                  {getFilterLabel(
+                    key as keyof typeof movieSearchInfo.filters,
+                    value
+                  )}
                   <RemoveFilterButton
                     onClick={() =>
-                      handleRemoveFilter(key as keyof typeof state.filters)
+                      handleRemoveFilter(
+                        key as keyof typeof movieSearchInfo.filters
+                      )
                     }
                     aria-label={`Remover filtro ${getFilterLabel(
-                      key as keyof typeof state.filters,
+                      key as keyof typeof movieSearchInfo.filters,
                       value
                     )}`}
                   >
@@ -366,29 +373,29 @@ export const MovieSearchPage: React.FC = () => {
           </ResultsContainer>
         )}
 
-        {state.loading ? (
+        {movieSearchInfo.loading ? (
           <LoadingSpinner />
-        ) : state.movies.length > 0 ? (
+        ) : movieSearchInfo.movies.length > 0 ? (
           <>
             <MoviesGrid>
-              {state.movies.map((movie) => (
+              {movieSearchInfo.movies.map((movie) => (
                 <MovieCard
                   key={movie.id}
                   movie={movie}
-                  genres={state.genres}
+                  genres={movieSearchInfo.genres}
                   onClick={handleMovieClick}
                 />
               ))}
             </MoviesGrid>
 
             <Pagination
-              currentPage={state.pagination.currentPage}
-              totalPages={Math.min(state.pagination.totalPages, 500)}
+              currentPage={movieSearchInfo.pagination.currentPage}
+              totalPages={Math.min(movieSearchInfo.pagination.totalPages, 500)}
               onPageChange={handlePageChange}
             />
           </>
         ) : (
-          !state.loading && (
+          !movieSearchInfo.loading && (
             <EmptyState>
               <EmptyTitle>Nenhum filme encontrado</EmptyTitle>
               <EmptyText>

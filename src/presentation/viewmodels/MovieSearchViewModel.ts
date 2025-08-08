@@ -21,32 +21,33 @@ export const useMovieSearchViewModel = (
   searchMoviesUseCase: SearchMoviesUseCase,
   getGenresUseCase: GetGenresUseCase
 ) => {
-  const [state, setState] = useState<MovieSearchViewModelState>({
-    movies: [],
-    genres: [],
-    filters: {
-      page: 1,
-      sortBy: "popularity.desc",
-    },
-    pagination: {
-      currentPage: 1,
-      totalPages: 0,
-      totalResults: 0,
-    },
-    loading: false,
-    error: null,
-  });
+  const [movieSearchInfo, setMovieSearchInfo] =
+    useState<MovieSearchViewModelState>({
+      movies: [],
+      genres: [],
+      filters: {
+        page: 1,
+        sortBy: "popularity.desc",
+      },
+      pagination: {
+        currentPage: 1,
+        totalPages: 0,
+        totalResults: 0,
+      },
+      loading: false,
+      error: null,
+    });
 
   const setLoading = useCallback((loading: boolean) => {
-    setState((prev) => ({ ...prev, loading }));
+    setMovieSearchInfo((prev) => ({ ...prev, loading }));
   }, []);
 
   const setError = useCallback((error: string | null) => {
-    setState((prev) => ({ ...prev, error }));
+    setMovieSearchInfo((prev) => ({ ...prev, error }));
   }, []);
 
   const updateFilters = useCallback((newFilters: Partial<MovieFilters>) => {
-    setState((prev) => ({
+    setMovieSearchInfo((prev) => ({
       ...prev,
       filters: { ...prev.filters, ...newFilters, page: 1 },
     }));
@@ -54,7 +55,7 @@ export const useMovieSearchViewModel = (
 
   const searchMovies = useCallback(
     async (filters?: MovieFilters) => {
-      const searchFilters = filters || state.filters;
+      const searchFilters = filters || movieSearchInfo.filters;
       setLoading(true);
       setError(null);
 
@@ -62,7 +63,7 @@ export const useMovieSearchViewModel = (
         const response: PaginatedResponse<Movie> =
           await searchMoviesUseCase.execute(searchFilters);
 
-        setState((prev) => ({
+        setMovieSearchInfo((prev) => ({
           ...prev,
           movies: response.results,
           pagination: {
@@ -86,7 +87,7 @@ export const useMovieSearchViewModel = (
   const loadGenres = useCallback(async () => {
     try {
       const genres = await getGenresUseCase.execute();
-      setState((prev) => ({ ...prev, genres }));
+      setMovieSearchInfo((prev) => ({ ...prev, genres }));
     } catch (error) {
       console.error("Erro ao carregar gêneros:", error);
     }
@@ -94,10 +95,10 @@ export const useMovieSearchViewModel = (
 
   const changePage = useCallback(
     async (page: number) => {
-      const newFilters = { ...state.filters, page };
+      const newFilters = { ...movieSearchInfo.filters, page };
       await searchMovies(newFilters);
     },
-    [state.filters, searchMovies]
+    [movieSearchInfo.filters, searchMovies]
   );
 
   const resetFilters = useCallback(() => {
@@ -105,14 +106,14 @@ export const useMovieSearchViewModel = (
       page: 1,
       sortBy: "popularity.desc",
     };
-    setState((prev) => ({
+    setMovieSearchInfo((prev) => ({
       ...prev,
       filters: defaultFilters,
     }));
   }, []);
 
   return {
-    state,
+    movieSearchInfo,
     actions: {
       searchMovies,
       loadGenres,
